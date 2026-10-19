@@ -1,0 +1,22 @@
+[workspace]
+resolver = "3"
+members = ["crates/dsxray", "crates/dsxray-wasm"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.88"
+license = "MIT"
+repository = "https://github.com/sadmansakib811/dsxray"
+authors = ["Sadman Sakib"]
+
+[profile.release]
+lto = true
+codegen-units = 1
+
+# the browser build: small download
+[profile.wasm]
+inherits = "release"
+opt-level = "s"
+panic = "abort"
+strip = true

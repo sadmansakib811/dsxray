@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>dsxray · X-ray a .DS_Store file</title>
+<meta name="description" content="See every record in Apple's .DS_Store files, what it means, where its bytes are, and which file names it leaks. Runs in your browser with Rust and WebAssembly; nothing is uploaded.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='7' fill='%230b6e4f'/><text x='16' y='22' font-size='15' text-anchor='middle' fill='white' font-family='monospace'>.DS</text></svg>">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top">
+  <div class="wrap top-row">
+    <a class="brand" href="./"><span class="logo">.DS</span> dsxray</a>
+    <nav>
+      <a href="https://github.com/sadmansakib811/dsxray/blob/main/docs/FORMAT.md">How the format works</a>
+      <a href="https://github.com/sadmansakib811/dsxray#command-line">Command line</a>
+      <a href="https://github.com/sadmansakib811/dsxray">GitHub</a>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <h1>X-ray a <code>.DS_Store</code> file</h1>
+    <p class="lead">macOS Finder leaves a hidden <code>.DS_Store</code> in every folder it opens. It stores icon positions,
+      window sizes and comments, keyed by <strong>file name</strong>. Upload one with a website or commit it to a repository,
+      and anyone can read which files sit in that folder. See exactly what yours gives away.</p>
+  </section>
+
+  <section id="drop" class="drop" tabindex="0" aria-label="Drop a .DS_Store file here or choose one">
+    <input id="file" type="file" hidden>
+    <p class="drop-title">Drop a <code>.DS_Store</code> file here</p>
+    <p class="drop-actions">
+      <button id="choose" type="button" class="btn primary">Choose a file</button>
+      <button id="sample" type="button" class="btn">Try a sample</button>
+    </p>
+    <p class="hint">It's read right here by a Rust program compiled to WebAssembly. Nothing is uploaded.
+      In Finder, <kbd>⌘</kbd><kbd>⇧</kbd><kbd>.</kbd> shows hidden files.</p>
+  </section>
+
+  <p id="error" class="error" role="alert" hidden></p>
+
+  <section id="result" hidden>
+    <div class="stats" id="stats"></div>
+    <p id="problem" class="warning" hidden></p>
+
+    <h2>Names it reveals <span class="count" id="names-count"></span></h2>
+    <ul class="chips" id="names"></ul>
+
+    <h2>Byte map</h2>
+    <p class="sub">Every part of the file, to scale. Click a part to see its bytes.</p>
+    <div class="bytemap" id="bytemap" role="list"></div>
+    <ul class="legend" id="legend"></ul>
+
+    <div class="grid">
+      <div>
+        <h2>Records <span class="count" id="records-count"></span></h2>
+        <p class="sub">Click a record to see its bytes and its decoded value.</p>
+        <div class="table-wrap">
+          <table id="records">
+            <thead><tr><th>Name</th><th>Code</th><th>Value</th><th>Meaning</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <aside class="inspector" id="inspector">
+        <h2 id="insp-title">Bytes</h2>
+        <p class="sub" id="insp-sub">Pick a record or a part of the byte map.</p>
+        <ul class="legend" id="insp-legend" hidden></ul>
+        <pre class="hex" id="hex"></pre>
+        <pre class="decoded" id="decoded" hidden></pre>
+      </aside>
+    </div>
+  </section>
+
+  <section class="about">
+    <h2>What is this?</h2>
+    <p><strong>dsxray</strong> parses Apple's undocumented <code>.DS_Store</code> format: a small buddy allocator that
+      holds a B-tree of records. The parser is written in Rust, never trusts a length or pointer in the file, and was
+      checked record by record against an independent implementation on real Finder files.
+      The same code runs as a command-line tool: <code>dsxray scan ./site</code> fails a deploy when a
+      <code>.DS_Store</code> would go out with it.</p>
+    <p><a href="https://github.com/sadmansakib811/dsxray/blob/main/docs/FORMAT.md">Read how the format works, byte by byte →</a></p>
+  </section>
+</main>
+
+<footer class="wrap foot">
+  Rust → WebAssembly, no framework, no tracking. Made by <a href="https://github.com/sadmansakib811">Sadman Sakib</a>.
+  <a href="https://github.com/sadmansakib811/dsxray">Source and command-line tool on GitHub</a>.
+</footer>
+
+<script src="app.js" type="module"></script>
+</body>
+</html>

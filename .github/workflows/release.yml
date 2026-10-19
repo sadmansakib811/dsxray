@@ -1,0 +1,37 @@
+name: Release
+
+# Push a tag like v0.1.0: builds the command-line tool for Linux, macOS and Windows and attaches
+# the archives to a GitHub release.
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - { os: ubuntu-latest, target: x86_64-unknown-linux-gnu, archive: tar.gz }
+          - { os: ubuntu-24.04-arm, target: aarch64-unknown-linux-gnu, archive: tar.gz }
+          - { os: macos-latest, target: aarch64-apple-darwin, archive: tar.gz }
+          - { os: windows-latest, target: x86_64-pc-windows-msvc, archive: zip }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+      - run: cargo build --release --locked -p dsxray --target ${{ matrix.target }}
+      - name: Pack
+        shell: bash
+        run: |
+          name=dsxray-${{ matrix.target }}
+          cd target/${{ matrix.target }}/release
+          if [ "${{ matrix.archive }}" = zip ]; then 7z a "../../../$name.zip" dsxray.exe; else tar czf "../../../$name.tar.gz" dsxray; fi
+      - uses: softprops/action-gh-release@v3
+        with:
+          files: dsxray-${{ matrix.target }}.${{ matrix.archive }}
+          generate_release_notes: true
